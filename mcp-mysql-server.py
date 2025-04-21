@@ -1,20 +1,49 @@
 import mysql.connector
 from mysql.connector import Error
+import configparser
+import argparse
+import sys
 #from mcp import FastMCP
 from fastmcp import FastMCP
 
 # Initialize MCP server
 mcp = FastMCP("MySQL MCP Server")
 
+# Parse command line arguments
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='MySQL MCP Server')
+    parser.add_argument('--config', type=str, default='config.ini', help='Path to the configuration file')
+    return parser.parse_args()
+
+# Load configuration
+def load_config(config_file):
+    config = configparser.ConfigParser()
+    try:
+        config.read(config_file)
+        return {
+            'host': config['mysql']['host'],
+            'port': int(config['mysql'].get('port', '3306')),
+            'user': config['mysql']['user'],
+            'password': config['mysql']['password'],
+            'database': config['mysql']['database']
+        }
+    except Exception as e:
+        print(f"Error loading configuration: {e}")
+        sys.exit(1)
+
+# Configuration
+args = parse_arguments()
+db_config = load_config(args.config)
+
 # Establish connection to MySQL
 def create_mysql_connection():
     try:
         connection = mysql.connector.connect(
-            host="MySQL_Host_Address",  # Change to your MySQL host
-            port=3306,         # Default MySQL port
-            user="YourUsername",       # Replace with your MySQL username
-            password="YourPassword",  # Replace with your MySQL password
-            database="example_db"   # Replace with your MySQL database
+            host=db_config['host'],
+            port=db_config['port'],
+            user=db_config['user'],
+            password=db_config['password'],
+            database=db_config['database']
         )
         if connection.is_connected():
             return connection
@@ -72,7 +101,17 @@ def get_table_schema(table_name: str) -> dict:
     try:
         query = f"DESCRIBE {table_name}"
         cursor.execute(query)
-        schema = [{"Field": row, "Type": row[1], "Null": row[2], "Key": row[3], "Default": row[4], "Extra": row[5]} for row in cursor.fetchall()]
+        rows = cursor.fetchall()
+        schema = []
+        for row in rows:
+            schema.append({
+                "Field": row[0],
+                "Type": row[1],
+                "Null": row[2],
+                "Key": row[3],
+                "Default": row[4],
+                "Extra": row[5]
+            })
         return {"schema": schema}
     finally:
         cursor.close()
@@ -100,6 +139,46 @@ def execute_sql(query: str) -> dict:
     finally:
         cursor.close()
         connection.close()
+
+# Tool: List all tables
+@mcp.tool()
+def list_tables() -> dict:
+    """
+    Lists all tables in the database.
+    """
+    connection = create_mysql_connection()
+    cursor = connection.cursor()
+    try:
+        query = "SHOW TABLES"
+        cursor.execute(query)
+        tables = [row[0] for row in cursor.fetchall()]
+        return {"tables": tables}
+    finally:
+        cursor.close()
+        connection.close()
+
+# Tool: Test connection
+@mcp.tool()
+def test_connection() -> dict:
+    """
+    Tests the database connection and returns server information.
+    """
+    try:
+        connection = create_mysql_connection()
+        if connection.is_connected():
+            db_info = connection.get_server_info()
+            cursor = connection.cursor()
+            cursor.execute("SELECT DATABASE()")
+            database_name = cursor.fetchone()[0]
+            cursor.close()
+            connection.close()
+            return {
+                "status": "Connected",
+                "server_version": db_info,
+                "database": database_name
+            }
+    except Error as e:
+        return {"status": "Failed", "error": str(e)}
 
 # Start the MCP server
 if __name__ == "__main__":

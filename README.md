@@ -1,6 +1,6 @@
 # mcp-mysql-server
 
-A simple Python script for interacting with a local MySQL database via standard input/output (stdio).
+A simple Python script for interacting with a local MySQL database via standard input/output (stdio), based on FastMCP.
 
 ## Overview
 
@@ -9,9 +9,11 @@ A simple Python script for interacting with a local MySQL database via standard 
 ## Features
 
 * **Query Execution:** Execute SQL SELECT statements and view the results in a simple, readable format.
+* **Data Manipulation:** Insert data into tables with the write_table tool.
 * **Schema Inspection:** Retrieve information about the database schema, including:
-    * Listing all tables.
-    * Displaying the columns and their data types for a specific table.
+    * Listing all tables with the list_tables tool.
+    * Displaying the columns and their data types for a specific table with get_table_schema.
+* **Connection Testing:** Test database connectivity and get server information.
 * **Configurable Access Controls:** Define connection parameters (host, user, password, database) through configuration, allowing secure access to the database.
 * **stdio Interface:** Interact with the script using standard input for commands and receive output via standard output, facilitating scripting and automation.
 * **Local Deployment Focus:** Optimized for use within local development environments.
@@ -22,14 +24,14 @@ A simple Python script for interacting with a local MySQL database via standard 
 
 * Python 3.x installed on your system.
 * A local MySQL server instance running.
-* A Python MySQL connector library installed (e.g., `mysql-connector-python`). You can install it using pip:
+* Required Python libraries (install using the requirements.txt file):
     ```bash
-    pip install mysql-connector-python
+    pip install -r requirements.txt
     ```
 
 ### Installation
 
-1.  Download or clone the `mcp-mysql-server.py` script to your local machine.
+1.  Download or clone the repository to your local machine.
 
 ### Configuration
 
@@ -38,6 +40,7 @@ A simple Python script for interacting with a local MySQL database via standard 
     ```ini
     [mysql]
     host = localhost
+    port = 3306  # Optional, defaults to 3306
     user = your_mysql_user
     password = your_mysql_password
     database = your_database_name
@@ -47,9 +50,46 @@ A simple Python script for interacting with a local MySQL database via standard 
 
 ### Usage
 
-You can interact with the `mcp-mysql-server.py` script by piping commands to it via standard input.
-
-**Basic Syntax:**
+Run the script with the following command, specifying the path to your configuration file:
 
 ```bash
-echo "<command>" | python mcp-mysql-server.py --config config.ini
+python mcp-mysql-server.py --config config.ini
+```
+
+The script exposes the following tools that you can use to interact with your MySQL database:
+
+- `test_connection`: Tests the connection to the database and returns server information.
+- `list_tables`: Lists all tables in the current database.
+- `read_table`: Reads and returns all data from a specified table.
+- `write_table`: Inserts a new row of data into a specified table.
+- `get_table_schema`: Returns the schema (column definitions) for a specified table.
+- `execute_sql`: Executes a custom SQL query and returns the results.
+
+## Project Structure
+
+- `mcp-mysql-server.py`: Main script containing the MySQL MCP server implementation
+- `config.ini`: Configuration file for MySQL connection parameters
+- `requirements.txt`: List of Python dependencies
+- `changes.log`: Log of changes made to the project
+
+## Development
+
+For developers who want to extend this tool, you can add new functionalities by creating additional MCP tools. Each tool is a Python function decorated with `@mcp.tool()` that handles a specific database operation.
+
+Example of adding a new tool:
+
+```python
+@mcp.tool()
+def my_new_tool(param1: str, param2: int) -> dict:
+    """
+    Documentation for the new tool.
+    """
+    connection = create_mysql_connection()
+    cursor = connection.cursor()
+    try:
+        # Your tool implementation here
+        return {"result": "success"}
+    finally:
+        cursor.close()
+        connection.close()
+```

@@ -1,0 +1,24 @@
+# Changes Log
+
+## 2025-04-21 - Configuration and Feature Updates
+
+### Added
+- Configuration handling using configparser and command-line arguments
+- New test_connection tool to verify database connectivity
+- New list_tables tool to show all tables in the database
+- requirements.txt file for dependency management
+- sample config.ini file template
+
+### Fixed
+- Fixed get_table_schema function to properly handle row data (was incorrectly referencing row elements)
+
+### Changed
+- Updated connection handling to use configuration file parameters
+- Enhanced README.md with detailed usage information for all tools
+- Improved installation instructions to use requirements.txt
+
+### Technical Changes
+- Added configparser and argparse libraries
+- Added sys module for proper error handling
+- Improved error reporting in configuration loading
+- Enhanced documentation of command-line parameters
