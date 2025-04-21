@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: mcp-mysql-server-test
+    environment:
+      - PYTHONPATH=/app

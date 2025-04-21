@@ -1,0 +1,25 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python files
+*.py text diff=python
+
+# Bash scripts should use LF
+*.sh text eol=lf
+
+# SQL files
+*.sql text
+
+# Docker files
+Dockerfile text
+docker-compose.yml text
+.dockerignore text
+
+# Config files
+*.ini text
+*.yml text
+*.yaml text
+
+# Documentation
+*.md text diff=markdown
+LICENSE text

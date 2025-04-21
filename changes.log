@@ -1,5 +1,21 @@
 # Changes Log
 
+## 2025-04-21 - Docker Support and Unit Tests
+
+### Added
+- Docker support with Dockerfile and docker-compose.yml
+- Unit tests for all MCP tools with mocking
+- Docker-based test environment
+- Sample database initialization script with test data
+- Docker-specific configuration file
+
+### Technical Changes
+- Added Dockerfile for application deployment
+- Added Dockerfile.test for test environment
+- Created docker-compose.yml for multi-container setup
+- Added docker-compose.test.yml for isolated test execution
+- Added run_tests.sh script for test automation
+
 ## 2025-04-21 - Configuration and Feature Updates
 
 ### Added

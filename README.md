@@ -72,6 +72,53 @@ The script exposes the following tools that you can use to interact with your My
 - `requirements.txt`: List of Python dependencies
 - `changes.log`: Log of changes made to the project
 
+## Docker Support
+
+This project can be run in Docker containers using Docker Compose. The setup includes:
+
+1. A MySQL container with sample data
+2. The MCP MySQL Server container
+
+### Running with Docker
+
+1. Make sure you have Docker and Docker Compose installed on your system.
+2. Clone this repository.
+3. From the repository root, run:
+
+```bash
+docker-compose up -d
+```
+
+This will:
+- Start a MySQL server with sample data (users and posts tables)
+- Start the MCP MySQL Server connected to the MySQL database
+
+### Configuration for Docker
+
+A special configuration file (`config.docker.ini`) is used when running in Docker, which points to the MySQL container.
+
+## Testing
+
+Unit tests are provided to ensure the functionality works correctly. The tests use mocking to avoid requiring an actual database connection.
+
+### Running Tests Locally
+
+```bash
+# Make a copy of the main script with underscore naming
+cp mcp-mysql-server.py mcp_mysql_server.py
+
+# Run the tests
+python -m unittest tests.py
+```
+
+### Running Tests with Docker
+
+```bash
+docker-compose -f docker-compose.test.yml up --build
+```
+
+This will build a test container and run the unit tests within it.
+
 ## Development
 
 For developers who want to extend this tool, you can add new functionalities by creating additional MCP tools. Each tool is a Python function decorated with `@mcp.tool()` that handles a specific database operation.

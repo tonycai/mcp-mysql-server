@@ -1,0 +1,17 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Copy requirements and add test requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir pytest pytest-cov
+
+# Copy the rest of the application
+COPY . .
+
+# Make test script executable
+RUN chmod +x run_tests.sh
+
+# Run tests
+CMD ["./run_tests.sh"]
